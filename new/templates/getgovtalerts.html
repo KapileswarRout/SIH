@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Government Alerts</title>
+</head>
+<body>
+    <h1>View Government Alerts</h1>
+    
+    <!-- Table to display government alerts -->
+    <table>
+        <tr>
+            <th>Date & Time</th>
+            <th>Location</th>
+            <th>Calamity</th>
+            <th>Description</th>
+        </tr>
+        {% for alert in alerts %}
+        <tr>
+            <td>{{ alert.datetime }}</td>
+            <td>{{ alert.location }}</td>
+            <td>{{ alert.calamity }}</td>
+            <td>{{ alert.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <!-- Include any additional content or styling as needed -->
+</body>
+</html>

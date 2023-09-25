@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Common Alerts</title>
+</head>
+<body>
+    <h1>View Common Alerts</h1>
+    
+    <button id="viewAlerts">View Common Alerts</button>
+    
+    <div id="alertContainer">
+        <!-- Display fetched alerts here -->
+        <table>
+            <tr>
+                <th>Date & Time</th>
+                <th>Location</th>
+                <th>Calamity</th>
+                <th>Description</th>
+            </tr>
+            {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.datetime }}</td>
+                <td>{{ alert.location }}</td>
+                <td>{{ alert.calamity }}</td>
+                <td>{{ alert.description }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- JavaScript to fetch alerts -->
+    <script>
+        $(document).ready(function() {
+            $("#viewAlerts").click(function() {
+                // You can add JavaScript here to fetch the alerts if needed
+            });
+        });
+    </script>
+</body>
+</html>

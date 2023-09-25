@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Alert</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> <!-- Include your CSS file if needed -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    <style>
+        /* Styling for the form container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f7f7;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        /* CSS for the map container */
+        .map-container {
+            margin-top: 20px;
+            position: relative;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        /* Styling for Leaflet.draw controls */
+        .leaflet-draw-toolbar a {
+            background-color: #007BFF !important;
+            color: #fff !important;
+            border-radius: 4px !important;
+            padding: 5px !important;
+            margin-right: 5px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Collaborative Alert</h1>
+        <form action="/collaboration" method="POST" id="collaboration-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="team_id">Team ID:</label>
+            <input type="text" id="team_id" name="team_id" required>
+
+            <label for="calamity">Calamity:</label>
+            <input type="text" id="calamity" name="calamity" required>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+            
+            <!-- Add latitude and longitude input fields -->
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="latitude" required>
+            
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" required>
+
+            <label for="reason">Reason:</label>
+            <textarea id="reason" name="reason" rows="4" required></textarea>
+
+            <button type="submit">Submit Alert</button>
+        </form>
+    </div>
+
+    <div class="map-container">
+        <h2>Interactive Map:</h2>
+        <div id="map"></div>
+        <button id="bookmark-location" class="bookmark-button">Bookmark Location</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script>
+        // JavaScript for form validation
+        document.getElementById("collaboration-form").addEventListener("submit", function(event) {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var teamId = document.getElementById("team_id").value;
+            var calamity = document.getElementById("calamity").value;
+            var location = document.getElementById("location").value;
+            var latitude = document.getElementById("latitude").value;
+            var longitude = document.getElementById("longitude").value;
+            var reason = document.getElementById("reason").value;
+
+            if (!username || !password || !teamId || !calamity || !location || !latitude || !longitude || !reason) {
+                alert("Please fill in all fields.");
+                event.preventDefault();
+            }
+        });
+
+        <!-- Initialize the map -->
+var map = L.map('map').setView([YourInitialLatitude, YourInitialLongitude], 13); // Replace with initial coordinates and zoom level
+
+// Add a tile layer (for example, OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Add a marker to the map
+var marker = L.marker([YourInitialLatitude, YourInitialLongitude], { draggable: true }).addTo(map); // Replace with initial coordinates
+
+// Create Leaflet.draw controls for drawing markers
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+    draw: {
+        marker: true,
+        circle: false,
+        rectangle: false,
+        polygon: false,
+        polyline: false,
+    },
+    edit: {
+        featureGroup: drawnItems,
+    },
+});
+map.addControl(drawControl);
+
+// Update latitude and longitude input fields when marker is dragged
+marker.on('dragend', function(event){
+    var markerLatLng = marker.getLatLng();
+    document.getElementById('latitude').value = markerLatLng.lat;
+    document.getElementById('longitude').value = markerLatLng.lng;
+});
+
+// Handle marker creation
+map.on('draw:created', function (e) {
+    var type = e.layerType,
+        layer = e.layer;
+
+    if (type === 'marker') {
+        drawnItems.addLayer(layer);
+    }
+});
+
+// Bookmark location button functionality
+document.getElementById("bookmark-location").addEventListener("click", function() {
+    var bookmarkedLatitude = document.getElementById("latitude").value;
+    var bookmarkedLongitude = document.getElementById("longitude").value;
+
+    // Create a new marker for the bookmarked location
+    var bookmarkMarker = L.marker([bookmarkedLatitude, bookmarkedLongitude]).addTo(map);
+
+    // Add the marker to the drawn items group
+    drawnItems.addLayer(bookmarkMarker);
+});
+
+    </script>
+</body>
+</html>

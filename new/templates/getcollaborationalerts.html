@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaboration Alerts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> <!-- Include your CSS file if needed -->
+    <style>
+        /* Add any additional styling here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .alert-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .alert {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        .alert h2 {
+            color: #007BFF;
+        }
+        .alert p {
+            margin: 5px 0;
+        }
+        .location-link {
+            text-decoration: none;
+            color: #007BFF;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .location-link img {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .date-time {
+            text-align: right;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Collaboration Alerts</h1>
+    <div class="date-time" id="date-time"></div>
+    <div class="alert-container">
+        <!-- Sample Alerts (You can add more as needed) -->
+        <div class="alert">
+            <h2>Team Alpha</h2>
+            {% for alert in alerts %}
+            <p><strong>DateTime:</strong> <span id="alert-datetime"></span></p>
+            <p><strong>Calamity:</strong> {{ alert.calamity }}</p>
+            <p><strong>Location:</strong> {{ alert.location }}</p>
+            <p><strong>Reason:</strong> {{ alert.reason }}</p>
+            {% endfor %}
+            <a class="location-link" href="https://www.google.com/maps?q=19.8133,85.8315" target="_blank">
+                <img src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" alt="Google Maps Icon" width="20" height="20">
+                View Location
+            </a>
+        </div>
+
+        <!-- <div class="alert">
+            <h2>Rescue Squad Bravo</h2>
+            <p><strong>DateTime:</strong> <span id="alert-datetime-2"></span></p>
+            <p><strong>Calamity:</strong> Cyclone</p>
+            <p><strong>Location:</strong> Paradeep, Odisha (Latitude: 20.3165, Longitude: 86.6260)</p>
+            <p><strong>Reason:</strong> Evacuation required</p>
+            <a class="location-link" href="https://www.google.com/maps?q=20.3165,86.6260" target="_blank">
+                <img src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" alt="Google Maps Icon" width="20" height="20">
+                View Location
+            </a>
+        </div> -->
+    </div>
+    <script>
+        // Update real-time date and time
+        function updateDateTime() {
+            const dateTimeElement = document.getElementById("date-time");
+            const alertDateTimeElements = document.querySelectorAll(".alert p span[id^='alert-datetime']");
+            
+            const currentDate = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const formattedDate = currentDate.toLocaleDateString('en-US', options);
+            
+            dateTimeElement.textContent = `Updated: ${formattedDate}`;
+            
+            alertDateTimeElements.forEach(element => {
+                element.textContent = formattedDate;
+            });
+        }
+        
+        // Call the updateDateTime function initially and every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>
